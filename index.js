@@ -1,19 +1,21 @@
 const express = require("express");
-const  app = express();
+const app = express();
 const cors = require("cors")
 const port = 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+require('dotenv').config()
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 app.use(cors());
 app.use(express.json());
 
-const uri = "mongodb+srv://<db_username>:<db_password>@cluster0.iagloem.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = `mongodb+srv://${process.env.monogdbUserName}:${process.env.monogdbUserPassword}@cluster0.iagloem.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-foodecommerce
-C0nQEW1QVzyT9BRX
+// foodecommerce
+// C0nQEW1QVzyT9BRX
 
 
+//--------------------- Mongodb conection code start -------------------//
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -24,28 +26,48 @@ const client = new MongoClient(uri, {
   }
 });
 
+
 async function run() {
+
+  const FoodData = client.db("FoodEcommerce").collection("food-data")
+
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    app.get("/fooddata", async (req, res) => {
+      const data = await FoodData.find().toArray();
+      // console.log(data)
+      res.send(data)
+    })
+
+
+    app.get("/product/:id", async (req,res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await FoodData.findOne(query);
+        if (!result) {
+          return res.status(404).send({ message: "Product not found" });
+        }
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Internal server error" });
+      }
+    })
+
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    console.log("finaly")
   }
 }
+
 run().catch(console.dir);
 
+//--------------------- Mongodb conection code end -------------------//
 
-
-
-
-app.get("/", (req,res) => {
-    res.send("Hello world")
+app.get("/", (req, res) => {
+  res.send("Hello world")
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+  console.log(`Example app listening on port ${port}`)
 })
