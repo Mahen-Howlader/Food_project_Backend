@@ -29,12 +29,12 @@ const client = new MongoClient(uri, {
 
 async function run() {
 
-  const FoodData = client.db("FoodEcommerce").collection("food-data")
+  const FoodData = client.db("ECommerce_Food").collection("food-data")
 
   try {
     app.get("/fooddata", async (req, res) => {
       const data = await FoodData.find().toArray();
-      // console.log(data)
+      console.log(data)
       res.send(data)
     })
 
