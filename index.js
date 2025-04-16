@@ -44,7 +44,7 @@ async function run() {
           { $project: { _id: 1 } }         // Return only the field value
         ]).toArray();
 
-        console.log(data)
+        // console.log(data)
         // Check if data exists
         if (!data || data.length === 0) {
           return res.status(404).json({ 
@@ -52,7 +52,6 @@ async function run() {
             message: "No categories found" 
           });
         }
-    
         // Send successful response with all unique categories
         res.status(200).json({
           success: true,
@@ -70,14 +69,16 @@ async function run() {
     });
 
 
-    app.get("/fooddata", async (req, res) => {
-      // console.log(req?.query?.sort)
-      // const { sort } = req?.query;
-      // console.log(sort)
-      // const category = { category: `${sort}` };
-      const data = await FoodData.find().toArray();
-      res.send(data)
-    })
+      app.get("/fooddata", async (req, res) => {
+        // console.log(req?.query?.filter)
+        const { filter } = req?.query;
+        const options = { upsert: true };
+        console.log(filter)
+        const category = { category: `${filter}` };
+        const data = await FoodData.find(category).toArray();
+        console.log(data)
+        res.send(data)
+      })
 
 
 
